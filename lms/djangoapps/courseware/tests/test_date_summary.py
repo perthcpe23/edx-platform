@@ -73,17 +73,6 @@ class CourseDateSummaryTest(SharedModuleStoreTestCase):
         crum.set_current_request(request)
         return request
 
-    def test_course_info_feature_flag(self):
-        SelfPacedConfiguration(enable_course_home_improvements=False).save()
-        course = create_course_run()
-        user = create_user()
-        CourseEnrollmentFactory(course_id=course.id, user=user, mode=CourseMode.VERIFIED)
-
-        self.client.login(username=user.username, password=TEST_PASSWORD)
-        url = reverse('info', args=(course.id,))
-        response = self.client.get(url)
-        self.assertNotContains(response, 'date-summary', status_code=302)
-
     def test_course_home_logged_out(self):
         course = create_course_run()
         url = reverse('openedx.course_experience.course_home', args=(course.id,))
@@ -422,7 +411,6 @@ class CourseDateSummaryTest(SharedModuleStoreTestCase):
             assert block.title == 'current_datetime'
 
     @ddt.data(
-        'info',
         'openedx.course_experience.course_home',
     )
     @override_waffle_flag(DISABLE_UNIFIED_COURSE_TAB_FLAG, active=False)
@@ -444,7 +432,6 @@ class CourseDateSummaryTest(SharedModuleStoreTestCase):
                 self.assertContains(response, html)
 
     @ddt.data(
-        'info',
         'openedx.course_experience.course_home',
     )
     @override_waffle_flag(DISABLE_UNIFIED_COURSE_TAB_FLAG, active=False)
@@ -474,7 +461,6 @@ class CourseDateSummaryTest(SharedModuleStoreTestCase):
         assert block.date == course.start
 
     @ddt.data(
-        'info',
         'openedx.course_experience.course_home',
     )
     @override_waffle_flag(DISABLE_UNIFIED_COURSE_TAB_FLAG, active=False)
@@ -492,7 +478,6 @@ class CourseDateSummaryTest(SharedModuleStoreTestCase):
                 self.assertContains(response, html)
 
     @ddt.data(
-        'info',
         'openedx.course_experience.course_home',
     )
     @override_waffle_flag(DISABLE_UNIFIED_COURSE_TAB_FLAG, active=False)
@@ -716,8 +701,6 @@ class CourseDateSummaryTest(SharedModuleStoreTestCase):
             assert block.relative_datestring == expected_date_string
 
     @ddt.data(
-        ('info', True),
-        ('info', False),
         ('openedx.course_experience.course_home', True),
         ('openedx.course_experience.course_home', False),
     )
