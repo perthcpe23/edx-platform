@@ -199,7 +199,7 @@ function(Initialize) {
                     };
                 });
 
-                describe('when new speed is available', function() {
+                describe('when 0.75 speed is available', function() {
                     beforeEach(function() {
                         Initialize.prototype.setSpeed.call(state, '0.75');
                     });
@@ -208,6 +208,17 @@ function(Initialize) {
                         expect(state.speed).toEqual(0.75);
                     });
                 });
+
+                describe('when 2.0 speed is available', function() {
+                    beforeEach(function() {
+                        Initialize.prototype.setSpeed.call(state, '2.0');
+                    });
+
+                    it('set new speed', function() {
+                        expect(state.speed).toEqual(2.0);
+                    });
+                });
+
 
                 describe('when new speed is not available', function() {
                     beforeEach(function() {
