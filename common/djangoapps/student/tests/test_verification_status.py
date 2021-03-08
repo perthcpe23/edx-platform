@@ -11,7 +11,7 @@ from django.test import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 
-from mock import patch
+from unittest.mock import patch
 from pytz import UTC
 
 from common.djangoapps.course_modes.tests.factories import CourseModeFactory
@@ -48,7 +48,7 @@ class TestCourseVerificationStatus(UrlResetMixin, ModuleStoreTestCase):
 
     def setUp(self):
         # Invoke UrlResetMixin
-        super(TestCourseVerificationStatus, self).setUp()  # lint-amnesty, pylint: disable=super-with-arguments
+        super().setUp()
 
         self.user = UserFactory(password="edx")
         self.course = CourseFactory.create()
@@ -379,7 +379,7 @@ class TestCourseVerificationStatus(UrlResetMixin, ModuleStoreTestCase):
         response = self.client.get(self.dashboard_url)
 
         # Sanity check: verify that the course is on the page
-        self.assertContains(response, six.text_type(self.course.id))
+        self.assertContains(response, str(self.course.id))
 
         # Verify that the correct banner is rendered on the dashboard
         alt_text = self.BANNER_ALT_MESSAGES.get(status)

@@ -16,8 +16,7 @@ from django.conf import settings
 from django.test.client import Client
 from django.test.utils import override_settings
 from django.urls import reverse
-from mock import patch
-from six.moves import range
+from unittest.mock import patch
 
 # These imports refer to lms djangoapps.
 # Their testcases are only run under lms.
@@ -46,12 +45,12 @@ class RefundableTest(SharedModuleStoreTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(RefundableTest, cls).setUpClass()
+        super().setUpClass()
         cls.course = CourseFactory.create()
 
     def setUp(self):
         """ Setup components used by each refund test."""
-        super(RefundableTest, self).setUp()  # lint-amnesty, pylint: disable=super-with-arguments
+        super().setUp()
         self.user = UserFactory.create(password=self.USER_PASSWORD)
         self.verified_mode = CourseModeFactory.create(
             course_id=self.course.id,
@@ -136,11 +135,11 @@ class RefundableTest(SharedModuleStoreTestCase):
         expected_date = now + expected_date_delta
         refund_period = timedelta(days=days)
         date_placed = order_date.strftime(ECOMMERCE_DATE_FORMAT)
-        expected_content = '{{"date_placed": "{date}"}}'.format(date=date_placed)
+        expected_content = f'{{"date_placed": "{date_placed}"}}'
 
         httpretty.register_uri(
             httpretty.GET,
-            '{url}/orders/{order}/'.format(url=TEST_API_URL, order=self.ORDER_NUMBER),
+            f'{TEST_API_URL}/orders/{self.ORDER_NUMBER}/',
             status=200, body=expected_content,
             adding_headers={'Content-Type': JSON}
         )
@@ -202,7 +201,7 @@ class RefundableTest(SharedModuleStoreTestCase):
 
         httpretty.register_uri(
             httpretty.GET,
-            '{url}/orders/{order}/'.format(url=TEST_API_URL, order=self.ORDER_NUMBER),
+            f'{TEST_API_URL}/orders/{self.ORDER_NUMBER}/',
             status=200, body=expected_content,
             adding_headers={'Content-Type': JSON}
         )

@@ -4,7 +4,7 @@ import hashlib
 
 import ddt
 import factory
-import mock
+from unittest import mock
 import pytz
 from crum import set_current_request
 from django.contrib.auth.models import AnonymousUser, User  # lint-amnesty, pylint: disable=imported-auth-user
@@ -48,11 +48,11 @@ from xmodule.modulestore.tests.factories import CourseFactory
 class CourseEnrollmentTests(SharedModuleStoreTestCase):  # lint-amnesty, pylint: disable=missing-class-docstring
     @classmethod
     def setUpClass(cls):
-        super(CourseEnrollmentTests, cls).setUpClass()
+        super().setUpClass()
         cls.course = CourseFactory()
 
     def setUp(self):
-        super(CourseEnrollmentTests, self).setUp()  # lint-amnesty, pylint: disable=super-with-arguments
+        super().setUp()
         self.user = UserFactory()
         self.user_2 = UserFactory()
 
@@ -464,7 +464,7 @@ class PendingNameChangeTests(SharedModuleStoreTestCase):
     """
     @classmethod
     def setUpClass(cls):
-        super(PendingNameChangeTests, cls).setUpClass()
+        super().setUpClass()
         cls.user = UserFactory()
         cls.user2 = UserFactory()
 
@@ -493,7 +493,7 @@ class PendingEmailChangeTests(SharedModuleStoreTestCase):
     """
     @classmethod
     def setUpClass(cls):
-        super(PendingEmailChangeTests, cls).setUpClass()
+        super().setUpClass()
         cls.user = UserFactory()
         cls.user2 = UserFactory()
 
@@ -518,7 +518,7 @@ class PendingEmailChangeTests(SharedModuleStoreTestCase):
 class TestCourseEnrollmentAllowed(TestCase):  # lint-amnesty, pylint: disable=missing-class-docstring
 
     def setUp(self):
-        super(TestCourseEnrollmentAllowed, self).setUp()  # lint-amnesty, pylint: disable=super-with-arguments
+        super().setUp()
         self.email = 'learner@example.com'
         self.course_key = CourseKey.from_string("course-v1:edX+DemoX+Demo_Course")
         self.user = UserFactory.create()
@@ -557,7 +557,7 @@ class TestManualEnrollmentAudit(SharedModuleStoreTestCase):
     """
     @classmethod
     def setUpClass(cls):
-        super(TestManualEnrollmentAudit, cls).setUpClass()
+        super().setUpClass()
         cls.course = CourseFactory()
         cls.other_course = CourseFactory()
         cls.user = UserFactory()
@@ -624,7 +624,7 @@ class TestUserPostSaveCallback(SharedModuleStoreTestCase):
     changing any existing course mode states.
     """
     def setUp(self):
-        super(TestUserPostSaveCallback, self).setUp()  # lint-amnesty, pylint: disable=super-with-arguments
+        super().setUp()
         self.course = CourseFactory.create()
 
     @ddt.data(*(set(CourseMode.ALL_MODES) - set(CourseMode.AUDIT_MODES)))
@@ -674,7 +674,7 @@ class TestUserPostSaveCallback(SharedModuleStoreTestCase):
         actual_student = User.objects.get(email=student.email)
         actual_cea = CourseEnrollmentAllowed.objects.get(email=student.email)
 
-        assert actual_course_enrollment.mode == u'audit'
+        assert actual_course_enrollment.mode == 'audit'
         assert actual_student.is_active is True
         assert actual_cea.user == student
 
@@ -686,7 +686,7 @@ class TestUserPostSaveCallback(SharedModuleStoreTestCase):
         student = self._set_up_invited_student(
             course=self.course,
             active=True,
-            course_mode=u'verified'
+            course_mode='verified'
         )
         old_email = student.email
 
@@ -698,7 +698,7 @@ class TestUserPostSaveCallback(SharedModuleStoreTestCase):
         actual_course_enrollment = CourseEnrollment.objects.get(user=student, course_id=self.course.id)
         actual_student = User.objects.get(email=student.email)
 
-        assert actual_course_enrollment.mode == u'verified'
+        assert actual_course_enrollment.mode == 'verified'
         assert actual_student.is_active is True
 
     def _set_up_invited_student(self, course, active=False, enrolled=True, course_mode=''):

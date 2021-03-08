@@ -18,11 +18,10 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 from milestones.tests.utils import MilestonesTestCaseMixin
-from mock import patch
+from unittest.mock import patch
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 from pyquery import PyQuery as pq
-from six.moves import range
 
 from common.djangoapps.course_modes.models import CourseMode
 from common.djangoapps.entitlements.tests.factories import CourseEntitlementFactory
@@ -56,12 +55,12 @@ class TestStudentDashboardUnenrollments(SharedModuleStoreTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(TestStudentDashboardUnenrollments, cls).setUpClass()
+        super().setUpClass()
         cls.course = CourseFactory.create()
 
     def setUp(self):
         """ Create a course and user, then log in. """
-        super(TestStudentDashboardUnenrollments, self).setUp()  # lint-amnesty, pylint: disable=super-with-arguments
+        super().setUp()
         self.user = UserFactory()
         self.enrollment = CourseEnrollmentFactory(course_id=self.course.id, user=self.user)
         self.cert_status = 'processing'
@@ -193,7 +192,7 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
         """
         Create a course and user, then log in.
         """
-        super(StudentDashboardTests, self).setUp()  # lint-amnesty, pylint: disable=super-with-arguments
+        super().setUp()
         self.user = UserFactory()
         self.client.login(username=self.user.username, password=PASSWORD)
         self.path = reverse('dashboard')
@@ -287,11 +286,11 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
             org='edx',
             number='998',
             display_name='Test Course',
-            pre_requisite_courses=[six.text_type(self.pre_requisite_course.id)]
+            pre_requisite_courses=[str(self.pre_requisite_course.id)]
         )
         self.course_enrollment = CourseEnrollmentFactory(course_id=self.course.id, user=self.user)  # lint-amnesty, pylint: disable=attribute-defined-outside-init
 
-        set_prerequisite_courses(self.course.id, [six.text_type(self.pre_requisite_course.id)])
+        set_prerequisite_courses(self.course.id, [str(self.pre_requisite_course.id)])
         response = self.client.get(reverse('dashboard'))
         self.assertContains(response, '<div class="prerequisites">')
 
@@ -319,7 +318,7 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
         mock_course_overview.return_value = CourseOverviewFactory.create(start=self.TOMORROW, id=course_key)
         mock_course_runs.return_value = [
             {
-                'key': six.text_type(course_key),
+                'key': str(course_key),
                 'enrollment_end': str(self.TOMORROW),
                 'pacing_type': 'instructor_paced',
                 'type': 'verified',
@@ -327,7 +326,7 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
             }
         ]
         mock_pseudo_session.return_value = {
-            'key': six.text_type(course_key),
+            'key': str(course_key),
             'type': 'verified'
         }
         response = self.client.get(self.path)
@@ -404,7 +403,7 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
             start=self.TOMORROW, end=self.THREE_YEARS_FROM_NOW, self_paced=True, enrollment_end=self.THREE_YEARS_AGO
         )
         mock_course_overview.return_value = mocked_course_overview
-        course_enrollment = CourseEnrollmentFactory(user=self.user, course_id=six.text_type(mocked_course_overview.id))
+        course_enrollment = CourseEnrollmentFactory(user=self.user, course_id=str(mocked_course_overview.id))
         mock_course_runs.return_value = [
             {
                 'key': str(mocked_course_overview.id),
@@ -468,7 +467,7 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
             start=self.TOMORROW, self_paced=True, enrollment_end=self.TOMORROW
         )
         mock_course_overview.return_value = mocked_course_overview
-        course_enrollment = CourseEnrollmentFactory(user=self.user, course_id=six.text_type(mocked_course_overview.id))
+        course_enrollment = CourseEnrollmentFactory(user=self.user, course_id=str(mocked_course_overview.id))
         mock_course_runs.return_value = [
             {
                 'key': str(mocked_course_overview.id),
@@ -480,7 +479,7 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
         ]
         entitlement = CourseEntitlementFactory(user=self.user, enrollment_course_run=course_enrollment)
         program = ProgramFactory()
-        program['courses'][0]['course_runs'] = [{'key': six.text_type(mocked_course_overview.id)}]
+        program['courses'][0]['course_runs'] = [{'key': str(mocked_course_overview.id)}]
         program['courses'][0]['uuid'] = entitlement.course_uuid
         mock_get_programs.return_value = [program]
         response = self.client.get(self.path)
@@ -503,7 +502,7 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
             start=self.TOMORROW, self_paced=True, enrollment_end=self.TOMORROW
         )
         mock_course_overview.return_value = mocked_course_overview
-        course_enrollment = CourseEnrollmentFactory(user=self.user, course_id=six.text_type(mocked_course_overview.id), created=self.THREE_YEARS_AGO)  # lint-amnesty, pylint: disable=line-too-long
+        course_enrollment = CourseEnrollmentFactory(user=self.user, course_id=str(mocked_course_overview.id), created=self.THREE_YEARS_AGO)  # lint-amnesty, pylint: disable=line-too-long
         mock_course_runs.return_value = [
             {
                 'key': str(mocked_course_overview.id),
@@ -515,7 +514,7 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
         ]
         entitlement = CourseEntitlementFactory(user=self.user, enrollment_course_run=course_enrollment, created=self.THREE_YEARS_AGO)  # lint-amnesty, pylint: disable=line-too-long
         program = ProgramFactory()
-        program['courses'][0]['course_runs'] = [{'key': six.text_type(mocked_course_overview.id)}]
+        program['courses'][0]['course_runs'] = [{'key': str(mocked_course_overview.id)}]
         program['courses'][0]['uuid'] = entitlement.course_uuid
         mock_get_programs.return_value = [program]
         response = self.client.get(self.path)
@@ -536,7 +535,7 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
         course_enrollment = CourseEnrollmentFactory(user=self.user, course_id=course_overview.id)
         entitlement = CourseEntitlementFactory(user=self.user, enrollment_course_run=course_enrollment)
         course_runs = [{
-            'key': six.text_type(course_overview.id),
+            'key': str(course_overview.id),
             'uuid': entitlement.course_uuid
         }]
         mock_get_course_runs.return_value = course_runs
@@ -722,7 +721,7 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
             ItemFactory.create(
                 category='video',
                 parent_location=course.location,
-                display_name='Video {0}'.format(six.text_type(number))
+                display_name='Video {}'.format(str(number))
             ).location
             for number in range(5)
         ]
@@ -823,7 +822,7 @@ class StudentDashboardTests(SharedModuleStoreTestCase, MilestonesTestCaseMixin, 
                     ItemFactory.create(
                         category='video',
                         parent_location=course.location,
-                        display_name='Video {0}'.format(six.text_type(number))
+                        display_name='Video {}'.format(str(number))
                     ).location
                     for number in range(5)
                 ]
