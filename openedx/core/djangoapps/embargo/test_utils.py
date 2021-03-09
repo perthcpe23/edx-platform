@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.urls import reverse
 
 import geoip2.database
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 from .models import Country, CountryAccessRule, RestrictedCourse
 
