@@ -137,7 +137,16 @@ class CoursewareMeta:
             self.overview,
             self.effective_user,
             'load',
-            check_if_enrolled=True,
+            @@NOTE_TO_SELF('''
+                The masquerade bug has something
+                to do with the fact that masquerading as a role (not a user)
+                in legacy courseware somehow skips the enrollment check
+                or overrides it on the basis of staff-iness.
+                Whereas in this path (MFE courseware) the enrollment check is
+                still hit and the staff check is annulled.
+                '''
+            )
+            check_if_enrolled=(not self.is_staff),
             check_survey_complete=False,
             check_if_authenticated=True,
         ).to_json()
