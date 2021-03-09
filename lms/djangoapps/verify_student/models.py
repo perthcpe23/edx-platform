@@ -351,10 +351,21 @@ class PhotoVerification(IDVerificationAttempt):
     # capturing it so that we can later query for the common problems.
     error_code = models.CharField(blank=True, max_length=50)
 
+    # Mark if attempt is going through an A/B experiment
+    experiment_name = models.CharField(null=True, max_length=50)
+
     class Meta:
         app_label = "verify_student"
         abstract = True
         ordering = ['-created_at']
+
+    def update_experiment_name(self, name):
+        """
+        This field is used during A/B testing to determine which test/variation
+        the attempt is associated with.
+        """
+        self.experiment_name = name
+        self.save()
 
     def parsed_error_msg(self):
         """

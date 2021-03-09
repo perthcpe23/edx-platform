@@ -833,6 +833,7 @@ class SubmitPhotosView(View):
             face_image (str): base64-encoded image data of the user's face.
             photo_id_image (str): base64-encoded image data of the user's photo ID.
             full_name (str): The user's full name, if the user is requesting a name change as well.
+            experiment_name (str): The name of an A/B experiment associated with this attempt
 
         """
         # If the user already has an initial verification attempt, we can re-use the photo ID
@@ -865,7 +866,13 @@ class SubmitPhotosView(View):
             return response
 
         # Submit the attempt
-        self._submit_attempt(request.user, face_image, photo_id_image, initial_verification)
+        self._submit_attempt(
+            request.user,
+            face_image,
+            photo_id_image,
+            initial_verification,
+            params.get("experiment_name", None)
+        )
 
         self._fire_event(request.user, "edx.bi.verify.submitted", {"category": "verification"})
         self._send_confirmation_email(request.user)
@@ -889,7 +896,8 @@ class SubmitPhotosView(View):
             for param_name in [
                 "face_image",
                 "photo_id_image",
-                "full_name"
+                "full_name",
+                "experiment_name"
             ]
             if param_name in request.POST
         }
@@ -980,7 +988,7 @@ class SubmitPhotosView(View):
             log.error(("Image data for user {user_id} is not valid").format(user_id=request.user.id))
             return None, None, HttpResponseBadRequest(msg)
 
-    def _submit_attempt(self, user, face_image, photo_id_image=None, initial_verification=None):
+    def _submit_attempt(self, user, face_image, photo_id_image=None, initial_verification=None, experiment_name=None):
         """
         Submit a verification attempt.
 
@@ -993,6 +1001,7 @@ class SubmitPhotosView(View):
             initial_verification (SoftwareSecurePhotoVerification): The initial verification attempt.
         """
         attempt = SoftwareSecurePhotoVerification(user=user)
+        attempt.update_experiment_name(experiment_name)
 
         # We will always have face image data, so upload the face image
         attempt.upload_face_image(face_image)

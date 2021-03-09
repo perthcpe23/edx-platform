@@ -1232,6 +1232,7 @@ class TestSubmitPhotosForVerification(MockS3BotoMixin, TestVerificationBase):
     PASSWORD = "test_password"
     IMAGE_DATA = "abcd,1234"
     FULL_NAME = "Ḟüḷḷ Ṅäṁë"
+    EXPERIMENT_NAME = "test-experiment"
 
     def setUp(self):
         super().setUp()
@@ -1249,6 +1250,7 @@ class TestSubmitPhotosForVerification(MockS3BotoMixin, TestVerificationBase):
         # Verify that the attempt is created in the database
         attempt = SoftwareSecurePhotoVerification.objects.get(user=self.user)
         assert attempt.status == 'submitted'
+        assert attempt.experiment_name is None
 
         # Verify that the user's name wasn't changed
         self._assert_user_name(self.user.profile.name)
@@ -1374,14 +1376,30 @@ class TestSubmitPhotosForVerification(MockS3BotoMixin, TestVerificationBase):
         # Now the request should succeed
         self._submit_photos(face_image=self.IMAGE_DATA)
 
-    #
-    def _submit_photos(self, face_image=None, photo_id_image=None, full_name=None, expected_status_code=200):
+    def test_experiment_name_param(self):
+        # Submit the photos
+        self._submit_photos(
+            face_image=self.IMAGE_DATA,
+            photo_id_image=self.IMAGE_DATA,
+            experiment_name=self.EXPERIMENT_NAME
+        )
+
+        # Verify that the attempt is created in the database
+        attempt = SoftwareSecurePhotoVerification.objects.get(user=self.user)
+        assert attempt.status == 'submitted'
+        assert attempt.experiment_name == self.EXPERIMENT_NAME
+
+    def _submit_photos(
+        self, face_image=None, photo_id_image=None,
+        full_name=None, experiment_name=None, expected_status_code=200
+    ):
         """Submit photos for verification.
 
         Keyword Arguments:
             face_image (str): The base-64 encoded face image data.
             photo_id_image (str): The base-64 encoded ID image data.
             full_name (unicode): The full name of the user, if the user is changing it.
+            experiment_name (str): Name of A/B experiment associated with attempt
             expected_status_code (int): The expected response status code.
 
         Returns:
@@ -1399,6 +1417,9 @@ class TestSubmitPhotosForVerification(MockS3BotoMixin, TestVerificationBase):
 
         if full_name is not None:
             params['full_name'] = full_name
+
+        if experiment_name is not None:
+            params['experiment_name'] = experiment_name
 
         with self.immediate_on_commit():
             response = self.client.post(url, params)
