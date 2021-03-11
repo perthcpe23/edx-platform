@@ -108,7 +108,7 @@ from lms.djangoapps.experiments.utils import UPSELL_TRACKING_FLAG
           % endif
         </h3>
         <div class="course-info">
-          <span class="info-university">${course_overview.display_org_with_default} - </span>
+          <span class="info-university">By ${course_overview.display_org_with_default} - </span>
           <span class="info-course-id">${course_overview.display_number_with_default}</span>
           <%
             enrollment_date = course_overview.self_paced and enrollment and enrollment.created
